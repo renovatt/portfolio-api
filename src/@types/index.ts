@@ -1,6 +1,6 @@
 export type ProjectsTypeProps = {
     id: string;
-    name: string;
+    project_name: string;
     link_deploy: string;
     banner: string;
     thumbnail: string;
@@ -29,19 +29,5 @@ export type SkillsTypeProps = {
 
 export type SoftskillsTypeProps = {
     id: string;
-    name: string;
-}
-
-export type CardContainerStyleProps = {
-    banner: string;
-}
-
-export type ImageProps = {
-    src: string;
-    alt: string;
-}
-
-export type SkillDescriptonTypeProps = {
-    skillName: string;
-    skillDescription: string;
+    softskill_name: string;
 }
