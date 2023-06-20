@@ -19,15 +19,32 @@ type TechsTypeProps {
 }
 
 model Project {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  link_deploy String
-  banner      String
-  thumbnail   String
-  description String
-  techs       LinksTypeProps
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  project_name String
+  link_deploy  String
+  banner       String
+  thumbnail    String
+  description  String
+  techs        LinksTypeProps
 
   created_at DateTime @default(now())
 
   @@map("projects")
+}
+
+model Skills {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  svg         String
+  link        String
+  skill_name  String
+  description String
+
+  created_at DateTime @default(now())
+}
+
+model Softskills {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  softskill_name String
+
+  created_at DateTime @default(now())
 }
