@@ -1,15 +1,15 @@
 import prismaClient from '../../lib';
 import { Request, Response } from 'express';
-import { ProjectsTypeProps } from '../../@types';
-import { BadRequesError, InternalError, NotFoundError } from '../../errors';
 import { verifyUserId } from '../../connections';
+import { ProjectsTypeProps } from '../../@types';
+import { BadRequestError, InternalError, NotFoundError } from '../../errors';
 
 export class ProjectController {
     async projects(request: Request, response: Response) {
         try {
             const projects = await prismaClient.project.findMany();
 
-            if (!projects) throw new BadRequesError('Lamento, aconteceu algum erro ao buscar os dados.');
+            if (!projects) throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
 
             return response.status(201).json(projects);
         } catch (error: any) {
@@ -21,7 +21,7 @@ export class ProjectController {
 
     async create(request: Request, response: Response) {
         const {
-            name,
+            project_name,
             banner,
             description,
             link_deploy,
@@ -33,15 +33,15 @@ export class ProjectController {
 
         try {
             const isExists = await prismaClient.project.findFirst({
-                where: { name }
+                where: { project_name }
             });
 
             if (isExists) {
-                throw new BadRequesError('Já existe um projeto com esse nome.');
+                throw new BadRequestError('Já existe um projeto com esse nome.');
             } else {
                 const project = await prismaClient.project.create({
                     data: {
-                        name,
+                        project_name,
                         link_deploy,
                         banner,
                         thumbnail,
@@ -63,7 +63,7 @@ export class ProjectController {
     async update(request: Request, response: Response) {
         const { id } = request.params;
         const {
-            name,
+            project_name,
             banner,
             description,
             link_deploy,
@@ -74,7 +74,7 @@ export class ProjectController {
         }: ProjectsTypeProps = request.body;
 
         try {
-            if (verifyUserId(id)) throw new BadRequesError('O ID do projeto é inválido ou não existe!');
+            if (verifyUserId(id)) throw new BadRequestError('O ID do projeto é inválido ou não existe!');
 
             const project = await prismaClient.project.findFirst({
                 where: { id }
@@ -86,7 +86,7 @@ export class ProjectController {
                 await prismaClient.project.update({
                     where: { id },
                     data: {
-                        name,
+                        project_name,
                         banner,
                         description,
                         link_deploy,
@@ -109,7 +109,7 @@ export class ProjectController {
         const { id } = request.params;
 
         try {
-            if (verifyUserId(id)) throw new BadRequesError('O ID do projeto é inválido ou não existe!');
+            if (verifyUserId(id)) throw new BadRequestError('O ID do projeto é inválido ou não existe!');
 
             const findproject = await prismaClient.project.findFirst({
                 where: { id }
