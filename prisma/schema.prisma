@@ -7,9 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Project {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
+type LinksTypeProps {
+  links TechsTypeProps[]
+}
 
-  @@map("project")
+type TechsTypeProps {
+  id       String
+  svg_name String
+  link     String
+  svg_link String
+}
+
+model Project {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  link_deploy String
+  banner      String
+  thumbnail   String
+  description String
+  techs       LinksTypeProps
+
+  created_at DateTime @default(now())
+
+  @@map("projects")
 }
