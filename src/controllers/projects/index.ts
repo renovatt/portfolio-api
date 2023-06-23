@@ -1,132 +1,121 @@
 import prismaClient from '../../lib';
 import { Request, Response } from 'express';
-import { verifyUserId } from '../../connections';
-import { ProjectsTypeProps } from '../../@types';
-import { BadRequestError, InternalError, NotFoundError } from '../../errors';
+import { validateId } from '../../connections';
+import { BadRequestError, NotFoundError } from '../../errors';
+import { CreateProjectSchema, DeleteProjectSchema, UpdateProjectSchema } from '../../@types';
 
 export class ProjectController {
     async projects(request: Request, response: Response) {
-        try {
-            const projects = await prismaClient.project.findMany();
+        const projects = await prismaClient.project.findMany();
 
-            if (!projects) throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
-
-            return response.status(201).json(projects);
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
+        if (!projects) {
+            throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
         }
+
+        return response
+            .status(200)
+            .json(projects);
     }
 
-    async create(request: Request, response: Response) {
+    async create(request: Request<CreateProjectSchema>['body'], response: Response) {
+        const { body }: CreateProjectSchema = request;
         const {
             project_name,
-            banner,
+            banner_url,
+            deploy_url,
+            thumbnail_url,
             description,
-            link_deploy,
-            thumbnail,
-            techs: {
-                links
-            }
-        }: ProjectsTypeProps = request.body;
+            techs: { links },
+        } = body;
 
-        try {
-            const isExists = await prismaClient.project.findFirst({
-                where: { project_name }
+        const isExists = await prismaClient.project.findFirst({
+            where: { project_name }
+        });
+
+        if (isExists) {
+            throw new BadRequestError('Já existe um projeto com esse nome.');
+        } else {
+            const project = await prismaClient.project.create({
+                data: {
+                    project_name,
+                    banner_url,
+                    deploy_url,
+                    thumbnail_url,
+                    description,
+                    techs: { links },
+                },
             });
-
-            if (isExists) {
-                throw new BadRequestError('Já existe um projeto com esse nome.');
-            } else {
-                const project = await prismaClient.project.create({
-                    data: {
-                        project_name,
-                        link_deploy,
-                        banner,
-                        thumbnail,
-                        description,
-                        techs: {
-                            links
-                        }
-                    },
+            return response
+                .status(201)
+                .json({
+                    project,
+                    message: 'Projeto adicionado com sucesso!'
                 });
-                return response.status(200).json({ project, message: 'Projeto adicionado com sucesso!' });
-            }
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 
-    async update(request: Request, response: Response) {
+    async update(request: Request<UpdateProjectSchema>['params'], response: Response) {
         const { id } = request.params;
+        const { body }: UpdateProjectSchema = request;
         const {
             project_name,
-            banner,
+            banner_url,
+            deploy_url,
+            thumbnail_url,
             description,
-            link_deploy,
-            thumbnail,
-            techs: {
-                links
-            }
-        }: ProjectsTypeProps = request.body;
+            techs: { links },
+        } = body;
 
-        try {
-            if (verifyUserId(id)) throw new BadRequestError('O ID do projeto é inválido ou não existe!');
+        validateId(id);
 
-            const project = await prismaClient.project.findFirst({
-                where: { id }
+        const project = await prismaClient.project.findFirst({
+            where: { id }
+        });
+
+        if (!project) {
+            throw new NotFoundError('Nenhum projeto foi encontrado.');
+        } else {
+            await prismaClient.project.update({
+                where: { id },
+                data: {
+                    project_name,
+                    banner_url,
+                    deploy_url,
+                    thumbnail_url,
+                    description,
+                    techs: { links },
+                },
             });
-
-            if (!project) {
-                throw new NotFoundError('Nenhum projeto foi encontrado.');
-            } else {
-                await prismaClient.project.update({
-                    where: { id },
-                    data: {
-                        project_name,
-                        banner,
-                        description,
-                        link_deploy,
-                        thumbnail,
-                        techs: {
-                            links
-                        }
-                    },
-                });
-            }
-            return response.status(200).json({ project, message: 'Projeto atualizado com sucesso!' });
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
+        return response
+            .status(200)
+            .json({
+                project,
+                message: 'Projeto atualizado com sucesso!'
+            });
     }
 
-    async delete(request: Request, response: Response) {
+    async delete(request: Request<DeleteProjectSchema>['params'], response: Response) {
         const { id } = request.params;
 
-        try {
-            if (verifyUserId(id)) throw new BadRequestError('O ID do projeto é inválido ou não existe!');
+        validateId(id);
 
-            const findproject = await prismaClient.project.findFirst({
+        const findProject = await prismaClient.project.findFirst({
+            where: { id }
+        });
+
+        if (!findProject) {
+            throw new NotFoundError('Nenhum projeto foi encontrado.');
+        } else {
+            const project = await prismaClient.project.delete({
                 where: { id }
             });
-
-            if (!findproject) {
-                throw new NotFoundError('Nenhum projeto foi encontrado.');
-            } else {
-                const project = await prismaClient.project.delete({
-                    where: { id }
+            return response
+                .status(200)
+                .json({
+                    project,
+                    message: 'Projeto deletado com sucesso.'
                 });
-                return response.status(200).json({ project, message: 'Projeto deletado com sucesso.' });
-            }
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 }

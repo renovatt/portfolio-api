@@ -19,13 +19,13 @@ type TechsTypeProps {
 }
 
 model Project {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  project_name String
-  link_deploy  String
-  banner       String
-  thumbnail    String
-  description  String
-  techs        LinksTypeProps
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  project_name  String
+  deploy_url    String
+  banner_url    String
+  thumbnail_url String
+  description   String
+  techs         LinksTypeProps
 
   created_at DateTime @default(now())
 
@@ -40,6 +40,8 @@ model Skills {
   description String
 
   created_at DateTime @default(now())
+
+  @@map("skills")
 }
 
 model Softskills {
@@ -47,4 +49,16 @@ model Softskills {
   softskill_name String
 
   created_at DateTime @default(now())
+
+  @@map("softskills")
+}
+
+model Profile {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  description_1 String
+  description_2 String
+
+  created_at DateTime @default(now())
+
+  @@map("profile")
 }

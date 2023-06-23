@@ -1,100 +1,103 @@
 import prismaClient from '../../lib';
 import { Request, Response } from 'express';
-import { SoftskillsTypeProps } from '../../@types';
-import { BadRequestError, InternalError, NotFoundError } from '../../errors';
-import { verifyUserId } from '../../connections';
+import { validateId } from '../../connections';
+import { BadRequestError, NotFoundError } from '../../errors';
+import { CreateSoftskillSchema, DeleteSoftskillSchema, UpdateSoftskillSchema } from '../../@types';
 
-export class SoftskillsController {
+export class SoftskillController {
     async softskills(request: Request, response: Response) {
-        try {
-            const softskills = await prismaClient.softskills.findMany();
+        const softskills = await prismaClient.softskills.findMany();
 
-            if (!softskills) throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
-
-            return response.status(201).json(softskills);
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
+        if (!softskills) {
+            throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
         }
+
+        return response
+            .status(200)
+            .json(softskills);
     }
 
-    async create(request: Request, response: Response) {
-        const { softskill_name }: SoftskillsTypeProps = request.body;
+    async create(request: Request<CreateSoftskillSchema['body']>, response: Response) {
+        const { body }: CreateSoftskillSchema = request;
+        const { softskill_name } = body;
 
-        try {
-            const isExists = await prismaClient.softskills.findFirst({
-                where: { softskill_name }
+        const isExists = await prismaClient.softskills.findFirst({
+            where: { softskill_name }
+        });
+
+        if (isExists) {
+            throw new BadRequestError('Já existe uma competência com esse nome.');
+        } else {
+            const softskills = await prismaClient.softskills.create({
+                data: { softskill_name },
             });
 
-            if (isExists) {
-                throw new BadRequestError('Já existe uma competência com esse nome.');
-            } else {
-                const softskills = await prismaClient.softskills.create({
-                    data: {
-                        softskill_name
-                    },
+            return response
+                .status(201)
+                .json({
+                    softskills,
+                    message: 'Competência adicionada com sucesso!'
                 });
-                return response.status(200).json({ softskills, message: 'Competência adicionada com sucesso!' });
-            }
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 
-    async update(request: Request, response: Response) {
+    async update(request: Request<UpdateSoftskillSchema['params']>, response: Response) {
         const { id } = request.params;
-        const { softskill_name }: SoftskillsTypeProps = request.body;
+        const { body }: UpdateSoftskillSchema = request;
+        const { softskill_name } = body;
 
-        try {
-            if (verifyUserId(id)) throw new BadRequestError('O ID do competência é inválida ou não existe!');
+        validateId(id);
 
-            const softskills = await prismaClient.softskills.findFirst({
+        const findSoftskillsId = await prismaClient.softskills.findFirst({
+            where: { id }
+        });
+
+        const isExists = await prismaClient.softskills.findFirst({
+            where: { softskill_name }
+        });
+
+        if (isExists) {
+            throw new BadRequestError('Já existe uma competência com esse nome.');
+        }
+
+        if (!findSoftskillsId) {
+            throw new NotFoundError('Nenhuma competência foi encontrada.');
+        } else {
+            const updatedSoftskill = await prismaClient.softskills.update({
+                where: { id },
+                data: { softskill_name },
+            });
+
+            return response
+                .status(200)
+                .json({
+                    softskills: updatedSoftskill,
+                    message: 'Competência atualizada com sucesso!'
+                });
+        }
+    }
+
+    async delete(request: Request<DeleteSoftskillSchema['params']>, response: Response) {
+        const { id } = request.params;
+
+        validateId(id);
+
+        const findSoftskill = await prismaClient.softskills.findFirst({
+            where: { id }
+        });
+
+        if (!findSoftskill) {
+            throw new NotFoundError('Nenhuma competência foi encontrada.');
+        } else {
+            const softskills = await prismaClient.softskills.delete({
                 where: { id }
             });
-
-            if (!softskills) {
-                throw new NotFoundError('Nenhuma competência foi encontrada.');
-            } else {
-                await prismaClient.softskills.update({
-                    where: { id },
-                    data: {
-                        softskill_name
-                    },
+            return response
+                .status(200)
+                .json({
+                    softskills,
+                    message: 'Competência deletada com sucesso.'
                 });
-            }
-            return response.status(200).json({ softskills, message: 'Competência atualizada com sucesso!' });
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
-        }
-    }
-
-    async delete(request: Request, response: Response) {
-        const { id } = request.params;
-
-        try {
-            if (verifyUserId(id)) throw new BadRequestError('O ID do competência é inválida ou não existe!');
-
-            const findSoftskill = await prismaClient.softskills.findFirst({
-                where: { id }
-            });
-
-            if (!findSoftskill) {
-                throw new NotFoundError('Nenhuma competência foi encontrada.');
-            } else {
-                const softskills = await prismaClient.softskills.delete({
-                    where: { id }
-                });
-                return response.status(200).json({ softskills, message: 'Competência deletada com sucesso.' });
-            }
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 }

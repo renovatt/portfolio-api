@@ -1,116 +1,116 @@
 import prismaClient from '../../lib';
 import { Request, Response } from 'express';
-import { SkillsTypeProps } from '../../@types';
-import { BadRequestError, InternalError, NotFoundError } from '../../errors';
-import { verifyUserId } from '../../connections';
+import { validateId } from '../../connections';
+import { BadRequestError, NotFoundError } from '../../errors';
+import { CreateSkillSchema, DeleteSkillSchema, UpdateSkillSchema } from '../../@types';
 
-export class SkillsController {
+export class SkillController {
     async skills(request: Request, response: Response) {
-        try {
-            const skills = await prismaClient.skills.findMany();
+        const skill = await prismaClient.skills.findMany();
 
-            if (!skills) throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
-
-            return response.status(201).json(skills);
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
+        if (!skill) {
+            throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
         }
+
+        return response
+            .status(200)
+            .json(skill);
     }
 
-    async create(request: Request, response: Response) {
+    async create(request: Request<CreateSkillSchema['body']>, response: Response) {
+        const { body }: CreateSkillSchema = request;
         const {
             svg,
             link,
             skill_name,
             description
-        }: SkillsTypeProps = request.body;
+        } = body;
 
-        try {
-            const isExists = await prismaClient.skills.findFirst({
-                where: { skill_name }
+        const isExists = await prismaClient.skills.findFirst({
+            where: { skill_name }
+        });
+
+        if (isExists) {
+            throw new BadRequestError('Já existe um habilidade com esse nome.');
+        } else {
+            const skill = await prismaClient.skills.create({
+                data: {
+                    svg,
+                    link,
+                    skill_name,
+                    description
+                },
             });
 
-            if (isExists) {
-                throw new BadRequestError('Já existe um habilidade com esse nome.');
-            } else {
-                const skills = await prismaClient.skills.create({
-                    data: {
-                        svg,
-                        link,
-                        skill_name,
-                        description
-                    },
+            return response
+                .status(201)
+                .json({
+                    skill,
+                    message: 'Habilidade adicionada com sucesso!'
                 });
-                return response.status(200).json({ skills, message: 'Habilidade adicionada com sucesso!' });
-            }
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 
-    async update(request: Request, response: Response) {
+    async update(request: Request<UpdateSkillSchema>['params'], response: Response) {
         const { id } = request.params;
+        const { body }: UpdateSkillSchema = request;
         const {
             svg,
             link,
             skill_name,
             description
-        }: SkillsTypeProps = request.body;
+        } = body;
 
-        try {
-            if (verifyUserId(id)) throw new BadRequestError('O ID do habilidade é inválida ou não existe!');
+        validateId(id);
 
-            const skills = await prismaClient.skills.findFirst({
-                where: { id }
+        const skill = await prismaClient.skills.findFirst({
+            where: { id }
+        });
+
+        if (!skill) {
+            throw new NotFoundError('Nenhuma habilidade foi encontrada.');
+        } else {
+            const updatedSkill = await prismaClient.skills.update({
+                where: { id },
+                data: {
+                    svg,
+                    link,
+                    skill_name,
+                    description
+                },
             });
 
-            if (!skills) {
-                throw new NotFoundError('Nenhuma habilidade foi encontrada.');
-            } else {
-                await prismaClient.skills.update({
-                    where: { id },
-                    data: {
-                        svg,
-                        link,
-                        skill_name,
-                        description
-                    },
+            return response
+                .status(200)
+                .json({
+                    skill: updatedSkill,
+                    message: 'Habilidade atualizada com sucesso!'
                 });
-            }
-            return response.status(200).json({ skills, message: 'Habilidade atualizada com sucesso!' });
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 
-    async delete(request: Request, response: Response) {
+    async delete(request: Request<DeleteSkillSchema>['params'], response: Response) {
         const { id } = request.params;
 
-        try {
-            if (verifyUserId(id)) throw new BadRequestError('O ID do habilidade é inválida ou não existe!');
+        validateId(id);
 
-            const findSkill = await prismaClient.skills.findFirst({
+        const findSkill = await prismaClient.skills.findFirst({
+            where: { id }
+        });
+
+        if (!findSkill) {
+            throw new NotFoundError('Nenhuma habilidade foi encontrada.');
+        } else {
+            const skill = await prismaClient.skills.delete({
                 where: { id }
             });
 
-            if (!findSkill) {
-                throw new NotFoundError('Nenhuma habilidade foi encontrada.');
-            } else {
-                const project = await prismaClient.skills.delete({
-                    where: { id }
+            return response
+                .status(200)
+                .json({
+                    skill,
+                    message: 'Habilidade deletada com sucesso.'
                 });
-                return response.status(200).json({ project, message: 'Habilidade deletada com sucesso.' });
-            }
-        } catch (error: any) {
-            let modifieldError = error;
-            if (!modifieldError.statusCode) modifieldError = new InternalError('Error interno.');
-            return response.status(modifieldError.statusCode).json({ error: modifieldError.message });
         }
     }
 }
