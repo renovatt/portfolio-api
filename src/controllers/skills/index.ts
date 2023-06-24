@@ -1,116 +1,77 @@
-import prismaClient from '../../lib';
 import { Request, Response } from 'express';
 import { validateId } from '../../connections';
-import { BadRequestError, NotFoundError } from '../../errors';
-import { CreateSkillSchema, DeleteSkillSchema, UpdateSkillSchema } from '../../@types';
+import {
+    CreateSkillSchema,
+    DeleteSkillSchema,
+    UpdateSkillSchema
+} from '../../@types';
+import {
+    createSkill,
+    deleteSkill,
+    findSkillsById,
+    getAllSkills,
+    updateSkill,
+    validateSkillNotExist
+} from '../../services/skillsService';
 
 export class SkillController {
     async skills(request: Request, response: Response) {
-        const skill = await prismaClient.skills.findMany();
-
-        if (!skill) {
-            throw new BadRequestError('Lamento, aconteceu algum erro ao buscar os dados.');
-        }
+        const skills = await getAllSkills();
 
         return response
             .status(200)
-            .json(skill);
+            .json(skills);
     }
 
     async create(request: Request<CreateSkillSchema['body']>, response: Response) {
         const { body }: CreateSkillSchema = request;
-        const {
-            svg,
-            link,
-            skill_name,
-            description
-        } = body;
+        const { skill_name } = body;
 
-        const isExists = await prismaClient.skills.findFirst({
-            where: { skill_name }
-        });
+        await validateSkillNotExist(skill_name);
 
-        if (isExists) {
-            throw new BadRequestError('Já existe um habilidade com esse nome.');
-        } else {
-            const skill = await prismaClient.skills.create({
-                data: {
-                    svg,
-                    link,
-                    skill_name,
-                    description
-                },
+        const skill = await createSkill(body);
+
+        return response
+            .status(201)
+            .json({
+                skill,
+                message: 'Habilidade adicionada com sucesso!'
             });
-
-            return response
-                .status(201)
-                .json({
-                    skill,
-                    message: 'Habilidade adicionada com sucesso!'
-                });
-        }
     }
 
-    async update(request: Request<UpdateSkillSchema>['params'], response: Response) {
+    async update(request: Request<UpdateSkillSchema['params']>, response: Response) {
         const { id } = request.params;
         const { body }: UpdateSkillSchema = request;
-        const {
-            svg,
-            link,
-            skill_name,
-            description
-        } = body;
+        const { skill_name } = body;
 
         validateId(id);
+        await validateSkillNotExist(skill_name);
 
-        const skill = await prismaClient.skills.findFirst({
-            where: { id }
-        });
+        const existingSkill = await findSkillsById(id);
+        const updatedSkill = await updateSkill(existingSkill, body);
 
-        if (!skill) {
-            throw new NotFoundError('Nenhuma habilidade foi encontrada.');
-        } else {
-            const updatedSkill = await prismaClient.skills.update({
-                where: { id },
-                data: {
-                    svg,
-                    link,
-                    skill_name,
-                    description
-                },
+        return response
+            .status(200)
+            .json({
+                skill: updatedSkill,
+                message: 'Habilidade atualizada com sucesso!'
             });
-
-            return response
-                .status(200)
-                .json({
-                    skill: updatedSkill,
-                    message: 'Habilidade atualizada com sucesso!'
-                });
-        }
     }
 
-    async delete(request: Request<DeleteSkillSchema>['params'], response: Response) {
+    async delete(request: Request<DeleteSkillSchema['params']>, response: Response) {
         const { id } = request.params;
 
         validateId(id);
 
-        const findSkill = await prismaClient.skills.findFirst({
-            where: { id }
-        });
+        const existingSkill = await findSkillsById(id);
+        const existingSkillId = existingSkill.id as string;
+        const deletedSkill = await deleteSkill({ id: existingSkillId });
 
-        if (!findSkill) {
-            throw new NotFoundError('Nenhuma habilidade foi encontrada.');
-        } else {
-            const skill = await prismaClient.skills.delete({
-                where: { id }
+        return response
+            .status(200)
+            .json({
+                skill: deletedSkill,
+                message: 'Habilidade deletada com sucesso!'
             });
-
-            return response
-                .status(200)
-                .json({
-                    skill,
-                    message: 'Habilidade deletada com sucesso.'
-                });
-        }
     }
 }

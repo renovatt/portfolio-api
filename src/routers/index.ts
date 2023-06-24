@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ProfileController } from '../controllers/profile';
 import { ProjectController } from '../controllers/projects';
 import { SkillController } from '../controllers/skills';
 import { SoftskillController } from '../controllers/softskills';
@@ -18,7 +19,6 @@ import {
     deleteProjectSchema,
     updateProjectSchema
 } from '../zod/projectSchema';
-import { ProfileController } from '../controllers/profile';
 import {
     createProfileSchema,
     deleteProfileSchema,
@@ -39,7 +39,7 @@ const deleteProjects = new ProjectController().delete;
 
 const skills = new SkillController().skills;
 const createSkills = new SkillController().create;
-const updateSkills = new SoftskillController().update;
+const updateSkills = new SkillController().update;
 const deleteSkills = new SkillController().delete;
 
 const softskills = new SoftskillController().softskills;

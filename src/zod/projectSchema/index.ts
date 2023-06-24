@@ -9,15 +9,15 @@ const payload = {
         deploy_url: z
             .string({ required_error: 'URL do deploy é obrigatória.' })
             .nonempty('URL do deploy é obrigatória.')
-            .url('URL do deploy é obrigatória.'),
+            .url('Precisa ser uma url válida.'),
         banner_url: z
             .string({ required_error: 'URL do banner é obrigatória.' })
             .nonempty('URL do banner é obrigatória.')
-            .url('URL do banner é obrigatória.'),
+            .url('Precisa ser uma url válida.'),
         thumbnail_url: z
             .string({ required_error: 'URL da thumbnail é obrigatória.' })
             .nonempty('URL da thumbnail é obrigatória.')
-            .url('URL da thumbnail é obrigatória.'),
+            .url('Precisa ser uma url válida.'),
         description: z
             .string({ required_error: 'Descrição é obrigatória.' })
             .nonempty('Descrição é obrigatória.'),
@@ -36,14 +36,13 @@ const payload = {
                                 link: z
                                     .string({ required_error: 'URL da tech obrigatória.' })
                                     .nonempty('URL da tech obrigatória.')
-                                    .url('Precisa informar a url da habilidade.'),
+                                    .url('Precisa ser uma url válida.'),
                                 svg_link: z
                                     .string({ required_error: 'URL do svg obrigatória.' })
                                     .nonempty('Precisa informar a url do svg da habilidade.')
-                                    .url('Precisa informar a url da habilidade.'),
-                            })
+                                    .url('Precisa ser uma url válida.'),
+                            }),
                     )
-                    .nonempty('Pelo menos uma tech deve ser inserida.')
             })
     })
 };
