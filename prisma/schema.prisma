@@ -25,9 +25,8 @@ model Project {
   banner_url    String
   thumbnail_url String
   description   String
+  order         Int
   techs         LinksTypeProps
-
-  created_at DateTime @default(now())
 
   @@map("projects")
 }
@@ -39,16 +38,12 @@ model Skills {
   skill_name  String
   description String
 
-  created_at DateTime @default(now())
-
   @@map("skills")
 }
 
 model Softskills {
   id             String @id @default(auto()) @map("_id") @db.ObjectId
   softskill_name String
-
-  created_at DateTime @default(now())
 
   @@map("softskills")
 }
@@ -57,8 +52,6 @@ model Profile {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
   description_1 String
   description_2 String
-
-  created_at DateTime @default(now())
 
   @@map("profile")
 }
