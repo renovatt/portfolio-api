@@ -10,7 +10,7 @@ import {
 } from '../../@types';
 
 export const findProfileById = async (id: string): Promise<CreateProfileSchema['body']> => {
-    const existingProfile = await prismaClient.profile.findFirst({
+    const existingProfile = await prismaClient.profile.findUnique({
         where: { id }
     });
 

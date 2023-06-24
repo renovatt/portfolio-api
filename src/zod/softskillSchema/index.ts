@@ -28,3 +28,7 @@ export const updateSoftskillSchema = z.object({
 export const deleteSoftskillSchema = z.object({
     ...params,
 });
+
+export const getSoftskillSchema = z.object({
+    ...params,
+});

@@ -30,3 +30,7 @@ export const updateProfileSchema = z.object({
 export const deleteProfileSchema = z.object({
     ...params
 });
+
+export const getProfileSchema = z.object({
+    ...params,
+});

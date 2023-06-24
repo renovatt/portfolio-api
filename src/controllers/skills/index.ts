@@ -3,12 +3,14 @@ import { validateId } from '../../connections';
 import {
     CreateSkillSchema,
     DeleteSkillSchema,
+    ReadSkillSchema,
+    ReadSoftskillSchema,
     UpdateSkillSchema
 } from '../../@types';
 import {
     createSkill,
     deleteSkill,
-    findSkillsById,
+    findSkillById,
     getAllSkills,
     updateSkill,
     validateSkillNotExist
@@ -47,7 +49,7 @@ export class SkillController {
         validateId(id);
         await validateSkillNotExist(skill_name);
 
-        const existingSkill = await findSkillsById(id);
+        const existingSkill = await findSkillById(id);
         const updatedSkill = await updateSkill(existingSkill, body);
 
         return response
@@ -63,7 +65,7 @@ export class SkillController {
 
         validateId(id);
 
-        const existingSkill = await findSkillsById(id);
+        const existingSkill = await findSkillById(id);
         const existingSkillId = existingSkill.id as string;
         const deletedSkill = await deleteSkill({ id: existingSkillId });
 
@@ -73,5 +75,17 @@ export class SkillController {
                 skill: deletedSkill,
                 message: 'Habilidade deletada com sucesso!'
             });
+    }
+
+    async find(request: Request<ReadSkillSchema['params']>, response: Response) {
+        const { id } = request.params;
+
+        validateId(id);
+
+        const skill = await findSkillById(id);
+
+        return response
+            .status(200)
+            .json(skill);
     }
 }

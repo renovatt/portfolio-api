@@ -3,6 +3,7 @@ import { validateId } from '../../connections';
 import {
     CreateProfileSchema,
     DeleteProfileSchema,
+    ReadProfileSchema,
     UpdateProfileSchema
 } from '../../@types';
 import {
@@ -67,5 +68,17 @@ export class ProfileController {
                 profile: deletedProfile,
                 message: 'Perfil deletado com sucesso!'
             });
+    }
+
+    async find(request: Request<ReadProfileSchema['params']>, response: Response) {
+        const { id } = request.params;
+
+        validateId(id);
+
+        const profile = await findProfileById(id);
+
+        return response
+            .status(200)
+            .json(profile);
     }
 }

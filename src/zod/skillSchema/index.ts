@@ -37,3 +37,7 @@ export const updateSkillSchema = z.object({
 export const deleteSkillSchema = z.object({
     ...params
 });
+
+export const getSkillSchema = z.object({
+    ...params,
+});

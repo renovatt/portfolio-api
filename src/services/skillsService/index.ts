@@ -19,8 +19,8 @@ export const validateSkillNotExist = async (skill_name: string): Promise<void> =
     }
 };
 
-export const findSkillsById = async (id: string): Promise<CreateSkillSchema['body']> => {
-    const existingSkill = await prismaClient.skills.findFirst({
+export const findSkillById = async (id: string): Promise<CreateSkillSchema['body']> => {
+    const existingSkill = await prismaClient.skills.findUnique({
         where: { id }
     });
 

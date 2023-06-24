@@ -3,14 +3,16 @@ import { validateId } from '../../connections';
 import {
     CreateProjectSchema,
     DeleteProjectSchema,
+    ReadProjectSchema,
     UpdateProjectSchema
 } from '../../@types';
 import {
     createProject,
     deleteProject,
-    findProjectsById,
+    findProjectById,
     getAllProjects,
     updateProject,
+    validateProjecOrdertNotExist,
     validateProjectNotExist
 } from '../../services/projectService';
 
@@ -25,8 +27,9 @@ export class ProjectController {
 
     async create(request: Request<CreateProjectSchema>['body'], response: Response) {
         const { body }: CreateProjectSchema = request;
-        const { project_name } = body;
+        const { project_name, order } = body;
 
+        await validateProjecOrdertNotExist(order);
         await validateProjectNotExist(project_name);
 
         const project = await createProject(body);
@@ -42,15 +45,14 @@ export class ProjectController {
     async update(request: Request<UpdateProjectSchema>['params'], response: Response) {
         const { id } = request.params;
         const { body }: UpdateProjectSchema = request;
-        const { project_name } = body;
+        const { project_name, order } = body;
 
         validateId(id);
+        await validateProjecOrdertNotExist(order);
         await validateProjectNotExist(project_name);
 
-        const existingProject = await findProjectsById(id);
+        const existingProject = await findProjectById(id);
         const updatedProject = await updateProject(existingProject, body);
-
-        console.log(existingProject);
 
         return response
             .status(200)
@@ -65,7 +67,7 @@ export class ProjectController {
 
         validateId(id);
 
-        const existingProject = await findProjectsById(id);
+        const existingProject = await findProjectById(id);
         const existingProjectId = existingProject.id as string;
         const deletedProject = await deleteProject({ id: existingProjectId });
 
@@ -75,5 +77,17 @@ export class ProjectController {
                 project: deletedProject,
                 message: 'Projeto deletado com sucesso.'
             });
+    }
+
+    async find(request: Request<ReadProjectSchema['params']>, response: Response) {
+        const { id } = request.params;
+
+        validateId(id);
+
+        const project = await findProjectById(id);
+
+        return response
+            .status(200)
+            .json(project);
     }
 }

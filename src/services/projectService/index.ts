@@ -15,13 +15,23 @@ export const validateProjectNotExist = async (project_name: string): Promise<voi
     });
 
     if (existingProject) {
-        throw new BadRequestError('Já existe uma projeto com esse nome.');
+        throw new BadRequestError('Já existe um projeto com esse nome.');
     }
 };
 
-export const findProjectsById = async (id: string): Promise<CreateProjectSchema['body']> => {
-
+export const validateProjecOrdertNotExist = async (order: number): Promise<void> => {
     const existingProject = await prismaClient.project.findFirst({
+        where: { order }
+    });
+
+    if (existingProject) {
+        throw new BadRequestError('Já existe um projeto nessa ordem.');
+    }
+};
+
+export const findProjectById = async (id: string): Promise<CreateProjectSchema['body']> => {
+
+    const existingProject = await prismaClient.project.findUnique({
         where: { id }
     });
 
@@ -46,6 +56,7 @@ export const getAllProjects = async () => {
 export const createProject = async (
     body: CreateProjectSchema['body']): Promise<CreateProjectSchema['body']> => {
     const {
+        order,
         project_name,
         banner_url,
         deploy_url,
@@ -56,6 +67,7 @@ export const createProject = async (
 
     const createdProject = await prismaClient.project.create({
         data: {
+            order,
             project_name,
             banner_url,
             deploy_url,
@@ -75,6 +87,7 @@ export const updateProject = async (
     const { id } = existingProject;
 
     const {
+        order,
         project_name,
         banner_url,
         deploy_url,
@@ -86,6 +99,7 @@ export const updateProject = async (
     const updatedProject = await prismaClient.project.update({
         where: { id },
         data: {
+            order,
             project_name,
             banner_url,
             deploy_url,

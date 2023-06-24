@@ -3,6 +3,10 @@ import { z } from 'zod';
 const payload = {
     body: z.object({
         id: z.string().optional(),
+        order: z
+            .number({ required_error: 'Ordem obrigatória.' })
+            .nonnegative('Precisa ser um numero positivo.')
+            .min(1, 'Pelo menos um número.'),
         project_name: z
             .string({ required_error: 'Nome do projeto é obrigatório.' })
             .nonempty('Nome do projeto é obrigatório.'),
@@ -64,4 +68,8 @@ export const updateProjectSchema = z.object({
 
 export const deleteProjectSchema = z.object({
     ...params
+});
+
+export const getProjectSchema = z.object({
+    ...params,
 });

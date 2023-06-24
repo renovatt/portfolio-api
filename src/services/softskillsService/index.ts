@@ -19,8 +19,8 @@ export const validateSoftskillNotExist = async (softskill_name: string): Promise
     }
 };
 
-export const findSoftskillsById = async (id: string): Promise<CreateSoftskillSchema['body']> => {
-    const existingSoftskill = await prismaClient.softskills.findFirst({
+export const findSoftskillById = async (id: string): Promise<CreateSoftskillSchema['body']> => {
+    const existingSoftskill = await prismaClient.softskills.findUnique({
         where: { id }
     });
 

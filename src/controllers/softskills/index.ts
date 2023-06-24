@@ -3,12 +3,13 @@ import { validateId } from '../../connections';
 import {
     CreateSoftskillSchema,
     DeleteSoftskillSchema,
+    ReadSoftskillSchema,
     UpdateSoftskillSchema
 } from '../../@types';
 import {
     createSoftskill,
     deleteSoftskill,
-    findSoftskillsById,
+    findSoftskillById,
     getAllSoftskills,
     updateSoftskill,
     validateSoftskillNotExist
@@ -28,7 +29,7 @@ export class SoftskillController {
         const { softskill_name } = body;
 
         await validateSoftskillNotExist(softskill_name);
-        
+
         const softskill = await createSoftskill(body);
 
         return response
@@ -47,7 +48,7 @@ export class SoftskillController {
         validateId(id);
         await validateSoftskillNotExist(softskill_name);
 
-        const existingSoftskill = await findSoftskillsById(id);
+        const existingSoftskill = await findSoftskillById(id);
         const updatedSoftskill = await updateSoftskill(existingSoftskill, softskill_name);
 
         return response
@@ -63,7 +64,7 @@ export class SoftskillController {
 
         validateId(id);
 
-        const existingSoftskill = await findSoftskillsById(id);
+        const existingSoftskill = await findSoftskillById(id);
         const existingSoftskillId = existingSoftskill.id as string;
         const deletedSoftskill = await deleteSoftskill({ id: existingSoftskillId });
 
@@ -73,5 +74,17 @@ export class SoftskillController {
                 softskill: deletedSoftskill,
                 message: 'Competência deletada com sucesso!'
             });
+    }
+
+    async find(request: Request<ReadSoftskillSchema['params']>, response: Response) {
+        const { id } = request.params;
+
+        validateId(id);
+
+        const softskill = await findSoftskillById(id);
+
+        return response
+            .status(200)
+            .json(softskill);
     }
 }
