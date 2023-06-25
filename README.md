@@ -30,12 +30,12 @@ API desenvolvida especialmente para o meu [portfolio](https://portfolio-renovatt
 
 📁 **Back-end**
 - [Node.js](https://nodejs.org)
-- [express.js](https://expressjs.com/pt-br/)
+- [Express.js](https://expressjs.com/pt-br/)
 - [Prisma](https://www.prisma.io)
 - [MongoDB](https://www.mongodb.com)
-- [mongoose](https://mongoosejs.com/docs/guide.html)
-- [cors](https://www.npmjs.com/package/cors)
-- [dotenv](https://www.npmjs.com/package/dotenv)
+- [Mongoose](https://mongoosejs.com/docs/guide.html)
+- [Cors](https://www.npmjs.com/package/cors)
+- [Dotenv](https://www.npmjs.com/package/dotenv)
 
 🔋 **Versionamento e Deploy**
 - [Git](https://git-scm.com)
