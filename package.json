@@ -9,8 +9,8 @@
     "dev": "ts-node-dev --exit-child --transpile-only --ignore-watch node_modules src/index.ts",
     "build": "prisma generate && tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["renovatt", "wildemberg", "portfolio", "portfolio-api"],
+  "author": "renovato.dev",
   "license": "MIT",
   "devDependencies": {
     "@types/express": "^4.17.17",
