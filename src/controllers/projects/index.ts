@@ -45,11 +45,8 @@ export class ProjectController {
     async update(request: Request<UpdateProjectSchema>['params'], response: Response) {
         const { id } = request.params;
         const { body }: UpdateProjectSchema = request;
-        const { project_name, order } = body;
 
         validateId(id);
-        await validateProjecOrdertNotExist(order);
-        await validateProjectNotExist(project_name);
 
         const existingProject = await findProjectById(id);
         const updatedProject = await updateProject(existingProject, body);

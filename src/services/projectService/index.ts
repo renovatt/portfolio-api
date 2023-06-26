@@ -96,6 +96,14 @@ export const updateProject = async (
         techs: { links },
     } = body;
 
+    if (existingProject.project_name !== project_name) {
+        await validateProjectNotExist(project_name);
+    }
+
+    if (existingProject.order !== order) {
+        await validateProjecOrdertNotExist(order);
+    }
+
     const updatedProject = await prismaClient.project.update({
         where: { id },
         data: {
