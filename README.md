@@ -13,7 +13,7 @@ API desenvolvida especialmente para o meu [portfolio](https://portfolio-renovatt
 <br>
 
  ### Autenticação
-#### Todas as rotas da API são livres.
+#### No momento não há nenhuma autenciação, porém apenas o método GET é permitido.
 
 #
 
