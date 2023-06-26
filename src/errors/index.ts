@@ -19,6 +19,12 @@ export class NotFoundError extends ApiError {
     }
 }
 
+export class MethodNotAllowedError extends ApiError {
+    constructor(message: string) {
+        super(message, 405);
+    }
+}
+
 export class InternalError extends ApiError {
     constructor(message: string) {
         super(message, 500);

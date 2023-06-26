@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { router } from './routers';
+import { MethodNotAllowedError } from './errors';
 import { errorHandlerMiddleware } from './middlewares/errosHandler';
 import express, { NextFunction, Request, Response } from 'express';
 
@@ -13,16 +14,18 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 const server = express();
 
+server.use(cors());
 server.use((
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    console.log('Cors middleware accessed');
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    server.use(cors());
+    if (req.method !== 'GET') {
+        const methodNotAllowedError = new MethodNotAllowedError('Método não permitido.');
+        return res
+            .status(methodNotAllowedError.statusCode)
+            .json({ error: methodNotAllowedError.message });
+    }
     next();
 });
 
