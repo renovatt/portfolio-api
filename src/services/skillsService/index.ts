@@ -44,16 +44,14 @@ export const getAllSkills = async () => {
 export const createSkill = async (
     data: CreateSkillSchema['body']): Promise<CreateSkillSchema['body']> => {
     const {
-        svg,
-        link,
+        svg_link,
         skill_name,
         description
     } = data;
 
     const skill = await prismaClient.skills.create({
         data: {
-            svg,
-            link,
+            svg_link,
             skill_name,
             description
         },
@@ -71,8 +69,7 @@ export const updateSkill = async (
     const {
         skill_name,
         description,
-        link,
-        svg
+        svg_link
     } = body;
 
     const updatedSkill = await prismaClient.skills.update({
@@ -80,8 +77,7 @@ export const updateSkill = async (
         data: {
             skill_name,
             description,
-            link,
-            svg
+            svg_link
         },
     });
 

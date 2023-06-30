@@ -3,13 +3,10 @@ import { z } from 'zod';
 const payload = {
     body: z.object({
         id: z.string().optional(),
-        link: z
+        svg_link: z
             .string({ required_error: 'Link obrigatório.' })
             .nonempty('Link obrigatório.')
             .url('Precisa ser uma url válida.'),
-        svg: z
-            .string({ required_error: 'SVG obrigatório.' })
-            .nonempty('SVG obrigatório.'),
         skill_name: z
             .string({ required_error: 'Nome obrigatório.' })
             .nonempty('Nome obrigatório.'),

@@ -33,8 +33,7 @@ model Project {
 
 model Skills {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
-  svg         String
-  link        String
+  svg_link String
   skill_name  String
   description String
 
